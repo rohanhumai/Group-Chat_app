@@ -1,38 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat App</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App</title>
+  <style>
+    /* Reset & Base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #ece5dd; /* WhatsApp background */
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 450px;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    /* Header */
+    .chat-header {
+      padding: 14px;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 600;
+      background: #075e54; /* WhatsApp green */
+      color: #fff;
+    }
+
+    /* Messages area */
+    #messages {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;/* WhatsApp-like subtle pattern */
+      background-size: cover;
+    }
+
+    #messages p {
+      max-width: 75%;
+      padding: 10px 14px;
+      border-radius: 7.5px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      word-wrap: break-word;
+      background: #f1f0f0; /* Default bubble */
+      align-self: flex-start;
+    }
+
+    /* Sent message bubble */
+    #messages p.sent {
+      background: #d9fdd3; /* WhatsApp green bubble */
+      align-self: flex-end;
+    }
+
+    /* Input area */
+    .chat-input {
+      display: flex;
+      gap: 8px;
+      padding: 10px;
+      border-top: 1px solid #ddd;
+      background: #f0f0f0;
+    }
+
+    #message {
+      flex: 1;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 20px;
+      outline: none;
+      font-size: 1rem;
+      background: #fff;
+      color: #333;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    #message::placeholder {
+      color: #999;
+    }
+
+    #sendBtn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 20px;
+      background: #25d366; /* WhatsApp send button color */
+      color: #fff;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    #sendBtn:hover {
+      background: #20b954;
+    }
+
+    /* Mobile view */
+    @media (max-width: 600px) {
+      body {
+        background: #fff;
+      }
+      .chat-container {
+        width: 100%;
+        height: 100vh;
+        max-width: 100%;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+
+    /* Scrollbar */
+    #messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    #messages::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+    }
+  </style>
 </head>
 <body>
-    <h1>
-        Chatting
-    </h1>
-
-    <input type="text" id="message" placeholder="Enter Message">
-    <button id="sendBtn">Send</button>
+  <div class="chat-container">
+    <div class="chat-header">Chatting</div>
 
     <div id="messages"></div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-        const sendBtn = document.getElementById('sendBtn')
-        const messageInput = document.getElementById('message')
-        const allMessages = document.getElementById('messages')
+    <div class="chat-input">
+      <input type="text" id="message" placeholder="Type a message">
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
 
-        socket.on("message", (message) =>  {
-            const p = document.createElement('p')
-            p.innerText = message;
-            allMessages.appendChild(p)
-        } );
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const sendBtn = document.getElementById('sendBtn')
+    const messageInput = document.getElementById('message')
+    const allMessages = document.getElementById('messages')
 
-        sendBtn.addEventListener('click', (e) => {
-            const message = messageInput.value;
-            console.log(message)
-            socket.emit("user-message", message)
-        })
-    </script>
+    socket.on("message", (message) =>  {
+        const p = document.createElement('p')
+        p.innerText = message;
+        allMessages.appendChild(p)
+    });
+
+    sendBtn.addEventListener('click', (e) => {
+        const message = messageInput.value;
+        console.log(message)
+        socket.emit("user-message", message)
+    })
+
+    // Trigger send when pressing Enter
+messageInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault(); // stop form-like behavior
+    sendBtn.click();    // trigger send button
+  }
+});
+
+
+  </script>
 </body>
 </html>
